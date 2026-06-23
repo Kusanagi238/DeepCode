@@ -5,8 +5,8 @@ Enhanced CLI Interface Module for DeepCode
 """
 
 import os
-import time
 import platform
+import time
 from typing import Optional
 
 
@@ -40,10 +40,10 @@ class CLIInterface:
         self.is_running = True
         self.processing_history = []
         self.enable_indexing = True  # Default configuration
-        
+
         # Load segmentation config from the same source as UI
         self._load_segmentation_config()
-        
+
         # Initialize tkinter availability
         self._init_tkinter()
 
@@ -51,6 +51,7 @@ class CLIInterface:
         """Load segmentation configuration from mcp_agent.config.yaml"""
         try:
             from utils.llm_utils import get_document_segmentation_config
+
             seg_config = get_document_segmentation_config()
             self.segmentation_enabled = seg_config.get("enabled", True)
             self.segmentation_threshold = seg_config.get("size_threshold_chars", 50000)
@@ -62,9 +63,10 @@ class CLIInterface:
 
     def _save_segmentation_config(self):
         """Save segmentation configuration to mcp_agent.config.yaml"""
-        import yaml
         import os
-        
+
+        import yaml
+
         # Get the project root directory (where mcp_agent.config.yaml is located)
         current_file = os.path.abspath(__file__)
         cli_dir = os.path.dirname(current_file)  # cli directory
@@ -81,16 +83,22 @@ class CLIInterface:
                 config["document_segmentation"] = {}
 
             config["document_segmentation"]["enabled"] = self.segmentation_enabled
-            config["document_segmentation"]["size_threshold_chars"] = self.segmentation_threshold
+            config["document_segmentation"]["size_threshold_chars"] = (
+                self.segmentation_threshold
+            )
 
             # Write updated config
             with open(config_path, "w", encoding="utf-8") as f:
                 yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
 
-            print(f"{Colors.OKGREEN}✅ Document segmentation configuration updated{Colors.ENDC}")
+            print(
+                f"{Colors.OKGREEN}✅ Document segmentation configuration updated{Colors.ENDC}"
+            )
 
         except Exception as e:
-            print(f"{Colors.WARNING}⚠️ Failed to update segmentation config: {str(e)}{Colors.ENDC}")
+            print(
+                f"{Colors.WARNING}⚠️ Failed to update segmentation config: {str(e)}{Colors.ENDC}"
+            )
 
     def _init_tkinter(self):
         """Initialize tkinter availability check"""
@@ -643,11 +651,13 @@ class CLIInterface:
 
     def print_results_header(self):
         """Print results section header"""
-        header = f"""
-{Colors.BOLD}{Colors.OKGREEN}╔═══════════════════════════════════════════════════════════════════════════════╗
-║                              PROCESSING RESULTS                              ║
-╚═══════════════════════════════════════════════════════════════════════════════╝{Colors.ENDC}
-"""
+        hl = "\u2550"
+        inner = 70
+        title = "PROCESSING RESULTS"
+        top = f"\n{Colors.BOLD}{Colors.OKGREEN}\u2554{hl * inner}\u2557\n"
+        middle = f"\u2551{title.center(inner)}\u2551\n"
+        bottom = f"\u255a{hl * inner}\u255d{Colors.ENDC}\n"
+        header = f"{top}{middle}{bottom}"
         print(header)
 
     def print_error_box(self, title: str, error_msg: str):
@@ -695,21 +705,31 @@ class CLIInterface:
         # 清理缓存文件
         self.cleanup_cache()
 
-        goodbye = f"""
-{Colors.BOLD}{Colors.CYAN}╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                GOODBYE                                        ║
-╠═══════════════════════════════════════════════════════════════════════════════╣
-║  {Colors.OKGREEN}🎉 Thank you for using DeepCode CLI!                                     {Colors.CYAN}║
-║                                                                               ║
-║  {Colors.YELLOW}🧬 Join our community in revolutionizing research reproducibility         {Colors.CYAN}║
-║  {Colors.PURPLE}⚡ Together, we're building the future of automated code generation       {Colors.CYAN}║
-║                                                                               ║
-║  {Colors.OKCYAN}💡 Questions? Contribute to our open-source mission at GitHub             {Colors.CYAN}║
-║  {Colors.GREEN}🧹 Cache files cleaned up for optimal performance                         {Colors.CYAN}║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝{Colors.ENDC}
-"""
-        print(goodbye)
+        hl = "\u2550"
+        inner = 70
+
+        # Top border and title
+        print(f"\n{Colors.BOLD}{Colors.CYAN}\u2554{hl * inner}\u2557")
+        print(f"\u2551{'GOODBYE'.center(inner)}\u2551")
+        print(f"\u2560{hl * inner}\u2563")
+
+        # Content lines
+        lines = [
+            f" {Colors.OKGREEN}\ud83c\udf89 Thank you for using DeepCode CLI!{Colors.CYAN}",
+            "",
+            f" {Colors.YELLOW}\ud83e\uddec Join our community in revolutionizing research reproducibility",
+            f" {Colors.PURPLE}\u26a1 Together, we're building the future of automated code generation",
+            "",
+            f" {Colors.OKCYAN}\ud83d\udca1 Questions? Contribute to our open-source mission at GitHub",
+            f" {Colors.GREEN}\ud83e\uddf9 Cache files cleaned up for optimal performance",
+            "",
+        ]
+
+        for line in lines:
+            print(f"\u2551{line.ljust(inner)}\u2551")
+
+        # Bottom border
+        print(f"\u255a{hl * inner}\u255d{Colors.ENDC}")
 
     def ask_continue(self) -> bool:
         """Ask if user wants to continue with another paper"""
